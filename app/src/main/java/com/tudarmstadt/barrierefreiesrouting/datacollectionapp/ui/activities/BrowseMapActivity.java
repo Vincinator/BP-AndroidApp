@@ -223,7 +223,7 @@ public class BrowseMapActivity extends AppCompatActivity
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
 
 
-        // Check if the last obstacle data collection was completed
+        // Check if the firstNodeIsPlaced obstacle data collection was completed
 
         if (ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted) {
             floatingActionButton.hide();

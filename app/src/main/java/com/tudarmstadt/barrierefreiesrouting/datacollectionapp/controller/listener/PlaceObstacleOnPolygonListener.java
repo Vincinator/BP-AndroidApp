@@ -66,7 +66,6 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
         Point candidatePoint = null;
 
         /**
-         * IMPORTANT HINT FOR BI:
          * The nodes are ordered in the polyline.
          * this means, that we can iterate through the polyline and get the nearest line
          * of the polyline to the placed Point.
