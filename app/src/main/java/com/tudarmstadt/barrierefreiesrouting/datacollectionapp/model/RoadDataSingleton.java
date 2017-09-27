@@ -124,7 +124,6 @@ public class RoadDataSingleton {
         this.id_LASTlastnode = id_lastnode;
     }
 
-<<<<<<< HEAD
     public void setId_firstWAY(long id_firstWAY) {
         this.id_firstWAY = id_firstWAY;
     }
@@ -134,16 +133,17 @@ public class RoadDataSingleton {
     public void setId_secondWAY(long id_secondWAY) {
         this.id_secondWAY = id_secondWAY;
     }
+    
     public long getId_secondWAY() {
         return this.id_secondWAY;
-=======
+
+    }
     public ArrayList<WayBlacklist> getBlacklistedRoads() {
         return blacklistedRoads;
     }
 
     public void setBlacklistedRoads(ArrayList<WayBlacklist> blacklistedRoads) {
         this.blacklistedRoads = blacklistedRoads;
->>>>>>> 9c3f1d68542496ef8531a63993f7e5fc00ba5b2e
     }
 
     /*  ##########################################################

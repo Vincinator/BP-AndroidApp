@@ -30,7 +30,7 @@ public class DownloadRoadTask {
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(final Call call, IOException e) {
-
+                        System.out.println(e);
                     }
 
                     @Override

@@ -512,7 +512,7 @@ public class BrowseMapActivity extends AppCompatActivity
                 floatingActionButton.show();
                 ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle = point;
                 // initialize the end position with the start point.
-                ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = point;
+                ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = new GeoPoint(0f,0f);
 
                 currentPolyline = event.getPolyline();
             } else {

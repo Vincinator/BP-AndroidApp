@@ -129,15 +129,6 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
         return (value > 0 && value < recAreaToTest);
     }
 
-    public boolean isProjectedPointOnLineSegment(Point v1, Point v2, Point p, double tolerance) {
-        Point e1 = new Point(v2.x - v1.x, v2.y - v1.y);
-        int recAreaToTest = dot(e1, e1);
-
-        Point e2 = new Point(p.x - v1.x, p.y - v1.y);
-        double value = dot(e1, e2);
-        return ((value > 0 + tolerance || value > 0 - tolerance) && (value < recAreaToTest - tolerance || value < recAreaToTest + tolerance));
-    }
-
     /**
      * Search closest point between the line from pointA to pointB and pointC
      */
