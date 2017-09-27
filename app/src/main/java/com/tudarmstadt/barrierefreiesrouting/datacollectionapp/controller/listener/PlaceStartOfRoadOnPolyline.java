@@ -62,7 +62,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                 // TODO: Bi Check
                 if (polyline instanceof CustomPolyline) {
                     CustomPolyline cuspo = (CustomPolyline) polyline;
-                    ObstacleDataSingleton.getInstance().setId_way(cuspo.getRoad().id);
+                    RoadDataSingleton.getInstance().setId_firstWAY(cuspo.getRoad().id);
                 }
                 // Send Event that an Obstacle Position has been set, and send the position on the line with the event.
                 // Subscriber will be notified about this post, but only one specified method will be called  getClosestPointOnPolyLine(mapView,polyline, finalPoint))
@@ -129,7 +129,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                 // TODO: Bi Check
                 if (polyline instanceof CustomPolyline) {
                     CustomPolyline cuspo = (CustomPolyline) polyline;
-                    ObstacleDataSingleton.getInstance().setId_way(cuspo.getRoad().id);
+                    RoadDataSingleton.getInstance().setId_secondWAY(cuspo.getRoad().id);
                 }
                 // Send Event that an Obstacle Position has been set, and send the position on the line with the event.
                 // Subscriber will be notified about this post, but only one specified method will be called  getClosestPointOnPolyLine(mapView,polyline, finalPoint))

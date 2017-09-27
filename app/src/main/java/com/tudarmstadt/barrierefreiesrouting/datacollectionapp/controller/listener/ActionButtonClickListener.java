@@ -79,6 +79,8 @@ public class ActionButtonClickListener implements View.OnClickListener {
                             // wait for the Obstacle instance to be updated, then save 3 Ids into that Obstacle Instance before upload to the server
                             RoadDataSingleton.getInstance().saveThreeIdAttributes();
 
+                            long xx = RoadDataSingleton.getInstance().getId_firstWAY();
+                            long xx1 = RoadDataSingleton.getInstance().getId_secondWAY();
                             PostStreetToServerTask.PostStreet(RoadDataSingleton.getInstance().getWay());
 
                             // TODO: place this in the success of the server message (?) and update the BrowseMapActivity manually

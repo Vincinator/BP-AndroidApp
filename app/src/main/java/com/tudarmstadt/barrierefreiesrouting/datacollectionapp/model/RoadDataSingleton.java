@@ -30,6 +30,8 @@ public class RoadDataSingleton {
     private long id_lastnode;
     private long id_LASTfirstnode;
     private long id_LASTlastnode;
+    private long id_firstWAY;
+    private long id_secondWAY;
 
     /*  ##########################################################
         #Attribute needed for Export Tools
@@ -72,9 +74,10 @@ public class RoadDataSingleton {
     public boolean saveThreeIdAttributes() {
         if (instance != null) {
             instance.getWay().setId(id_way);
-            instance.getWay().setOsmid_firstWay(id_firstnode);
+            instance.getWay().setOsmid_firstWay(id_firstWAY);
+            instance.getWay().setOsmid_firstWayFirstNode(id_firstnode);
             instance.getWay().setOsmid_firstWaySecondNode(id_lastnode);
-            instance.getWay().setOsmid_secondWay(id_LASTfirstnode);
+            instance.getWay().setOsmid_secondWay(id_secondWAY);
             instance.getWay().setOsmid_secondWayFirstNode(id_LASTfirstnode);
             instance.getWay().setOsmid_secondWaySecondNode(id_LASTlastnode);
             return true;
@@ -121,12 +124,26 @@ public class RoadDataSingleton {
         this.id_LASTlastnode = id_lastnode;
     }
 
+<<<<<<< HEAD
+    public void setId_firstWAY(long id_firstWAY) {
+        this.id_firstWAY = id_firstWAY;
+    }
+    public long getId_firstWAY() {
+        return this.id_firstWAY;
+    }
+    public void setId_secondWAY(long id_secondWAY) {
+        this.id_secondWAY = id_secondWAY;
+    }
+    public long getId_secondWAY() {
+        return this.id_secondWAY;
+=======
     public ArrayList<WayBlacklist> getBlacklistedRoads() {
         return blacklistedRoads;
     }
 
     public void setBlacklistedRoads(ArrayList<WayBlacklist> blacklistedRoads) {
         this.blacklistedRoads = blacklistedRoads;
+>>>>>>> 9c3f1d68542496ef8531a63993f7e5fc00ba5b2e
     }
 
     /*  ##########################################################
