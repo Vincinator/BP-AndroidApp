@@ -109,6 +109,7 @@ public class BrowseMapActivity extends AppCompatActivity
     public FloatingActionButton floatingActionButton;
     public MapEditorFragment mapEditorFragment;
     private long selectedBarrier;
+    ArrayList<PlaceStartOfRoadOnPolyline> controleOfStart = new ArrayList<PlaceStartOfRoadOnPolyline>();
     private ArrayList<Polyline> currentPolylineArrayList = new ArrayList<>();
     private ArrayList<Polyline> currentStairsPolylines = new ArrayList<>();
 
@@ -120,6 +121,7 @@ public class BrowseMapActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        controleOfStart = new ArrayList<PlaceStartOfRoadOnPolyline>();
         // get the initial Blacklisted ways. Always update after inserting stairs obstacle.
         DownloadBlacklistedRoadsTask.downloadBlacklistedWays();
 
@@ -341,7 +343,9 @@ public class BrowseMapActivity extends AppCompatActivity
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(OverpassRoadDownloadEvent event) {
-    Response response = event.getResult();
+
+
+        Response response = event.getResult();
       if(response !=null&&response.isSuccessful())
 
     {
@@ -379,7 +383,11 @@ public class BrowseMapActivity extends AppCompatActivity
                 polyline.setWidth(18);
                 // See onClick() method in this class.
                 if(roadEditMode){
-                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
+                    PlaceStartOfRoadOnPolyline pSOROP = new PlaceStartOfRoadOnPolyline(mapEditorFragment);
+                    controleOfStart.add(pSOROP);
+                    pSOROP.addSTARTERList(controleOfStart);
+                    polyline.setOnClickListener(pSOROP);
+
 
                 }else{
                     polyline.setOnClickListener(new PlaceObstacleOnPolygonListener());
@@ -440,7 +448,11 @@ public class BrowseMapActivity extends AppCompatActivity
                         streetLine.setPoints(gp);
                         streetLine.setGeodesic(true);
                         if(roadEditMode){
-                            streetLine.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
+                            PlaceStartOfRoadOnPolyline pSOROP = new PlaceStartOfRoadOnPolyline(mapEditorFragment);
+                            controleOfStart.add(pSOROP);
+                            pSOROP.addSTARTERList(controleOfStart);
+                            streetLine.setOnClickListener(pSOROP);
+
 
                         }else{
                             streetLine.setOnClickListener(new PlaceObstacleOnPolygonListener());

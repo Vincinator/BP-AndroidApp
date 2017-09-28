@@ -40,7 +40,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
     public PlaceStartOfRoadOnPolyline(MapEditorFragment mapEditorFragment) {
         this.mapEditorFragment = mapEditorFragment;
-        pl.add(this);
+
     }
 
     @Override
@@ -329,6 +329,10 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         }
 
         return candidate;
+    }
+
+    public void addSTARTERList(ArrayList<PlaceStartOfRoadOnPolyline> pSOROP){
+        pl = pSOROP;
     }
 
 
