@@ -170,16 +170,18 @@ public class BrowseMapActivity extends AppCompatActivity
             public void onClick(View v) {
                 roadEditMode = false;
                 floatingActionButton.hide();
-                for (Polyline p : currentPolylineArrayList) {
-                    mapEditorFragment.map.getOverlays().remove(p);
-                }
-                for(Overlay overlay : RoadDataSingleton.getInstance().currentOverlayItems){
-                    mapEditorFragment.map.getOverlays().remove(overlay);
-                }
+
+                mapEditorFragment.map.getOverlays().removeAll(currentPolylineArrayList);
+                currentPolylineArrayList.clear();
+                mapEditorFragment.map.getOverlays().removeAll(RoadDataSingleton.getInstance().currentOverlayItems);
+                RoadDataSingleton.getInstance().currentOverlayItems.clear();
+
                 mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
                 ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
                 mapEditorFragment.getStateHandler().setActiveOperator(new PlaceNearestRoadsOnMapOperator());
                 mapEditorFragment.map.invalidate();
+
+
 
             }
         });
@@ -189,12 +191,12 @@ public class BrowseMapActivity extends AppCompatActivity
             public void onClick(View v) {
                 roadEditMode = true;
                 floatingActionButton.hide();
-                for (Polyline p : currentPolylineArrayList) {
-                    mapEditorFragment.map.getOverlays().remove(p);
-                }
-                for(Overlay overlay : RoadDataSingleton.getInstance().currentOverlayItems){
-                    mapEditorFragment.map.getOverlays().remove(overlay);
-                }
+
+                mapEditorFragment.map.getOverlays().removeAll(currentPolylineArrayList);
+                currentPolylineArrayList.clear();
+                mapEditorFragment.map.getOverlays().removeAll(RoadDataSingleton.getInstance().currentOverlayItems);
+                RoadDataSingleton.getInstance().currentOverlayItems.clear();
+
                 mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
                 ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
                 mapEditorFragment.getStateHandler().setActiveOperator(new RoadEditorOperator());

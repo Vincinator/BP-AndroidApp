@@ -65,7 +65,6 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
     private NearestRoadsOverlay roadsOverlay;
     private List<GeoPoint> roadEndPoints = new ArrayList<>();
     private List<ParcedOverpassRoad> RoadList = new ArrayList<>();
-    private List<Marker> RoadMarker = new ArrayList<>();
     private List<Polyline> currentRoadCapture = new ArrayList<>();
     private GetHighwaysFromOverpassAPITask task;
     private MapEditorFragment mapEditorFragment;
@@ -141,14 +140,13 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
         List<GeoPoint> geoPointsForRoadList = new ArrayList<GeoPoint>();
         ArrayList<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
 
-        // Workaround: when initial polyline and marker for road editor is not set yet
+        // Workaround: skip when initial polyline and marker are not set
         if(xx.size() < 4){
             return false;
         }
 
         ParcedOverpassRoad road = RoadList.get(RoadList.size() - 1);
 
-        //TODO: cast causes error sometimes.
         road.polylines.add((Polyline) xx.get(xx.size() - 1));
         road.polylines.add((Polyline) xx.get(xx.size() - 3));
 
@@ -182,10 +180,8 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             mark.setDraggable(false);
 
             end.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            RoadMarker.add(end);
 
-
-            addMapOverlay(end, streetLine, mapEditorFragment);
+            addMapOverlay(end, streetLine);
             EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
 
             return true;
@@ -195,7 +191,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
     }
 
-    public void addMapOverlay(Marker marker, Polyline polyline, MapEditorFragment mapEditorFragment) {
+    public void addMapOverlay(Marker marker, Polyline polyline) {
 
         RoadDataSingleton.getInstance().currentOverlayItems.add(marker);
         RoadDataSingleton.getInstance().currentOverlayItems.add(polyline);
@@ -224,18 +220,14 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
      * @param response
      */
     protected void processRoads(Response response) {
-        ArrayList<PlaceStartOfRoadOnPolyline> list = new ArrayList<>();
         if (response != null && response.isSuccessful()) {
 
             try {
                 ArrayList<Polyline> polylines = new ArrayList<>();
 
                 SAXParserFactory factory = SAXParserFactory.newInstance();
-                SAXParser saxParser = factory.newSAXParser();
 
-                OsmParser parser = new OsmParser();
                 String ss = response.body().string();
-                InputSource source = new InputSource(new StringReader(ss));
 
                 final ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -260,10 +252,6 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
                 EventBus.getDefault().post(new RoadsHelperOverlayChangedEvent(polylines));
 
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -299,8 +287,6 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
                 if (roadsOverlay.nearestRoads.isEmpty() || roadsOverlay.nearestRoads.getFirst().getRoadPoints().isEmpty())
                     return;
-
-                ArrayList<PlaceStartOfRoadOnPolyline> pl = new ArrayList<>();
 
                 for (ParcedOverpassRoad r : roadsOverlay.nearestRoads) {
 
@@ -361,7 +347,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
                     .method("POST", body)
                     .build();
 
-            Response response = null;
+            Response response;
             try {
                 response = client.newCall(request).execute();
             } catch (Exception e) {
