@@ -22,6 +22,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -38,6 +39,9 @@ public class MapEditorFragment extends Fragment implements MapEventsReceiver {
     public MapView map;
     public ItemizedOverlayWithFocus<ObstacleOverlayItem> obstacleOverlay;
     public ItemizedOverlayWithFocus<OverlayItem> placeNewObstacleOverlay;
+    public ItemizedOverlayWithFocus<OverlayItem> placeRoadEditMarkerOverlay;
+
+
 
     private MapEventsOverlay evOverlay;
     /**
@@ -130,9 +134,23 @@ public class MapEditorFragment extends Fragment implements MapEventsReceiver {
                     }
                 });
 
+        placeRoadEditMarkerOverlay = new ItemizedOverlayWithFocus<>(getActivity(), tempObstacleItems,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    @Override
+                    public boolean onItemSingleTapUp(int i, OverlayItem overlayItem) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onItemLongPress(int i, OverlayItem overlayItem) {
+                        return false;
+                    }
+                });
+
         obstacleOverlay.setFocusItemsOnTap(false);
         map.getOverlays().add(obstacleOverlay);
         map.getOverlays().add(placeNewObstacleOverlay);
+        map.getOverlays().add(placeRoadEditMarkerOverlay);
 
         v.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

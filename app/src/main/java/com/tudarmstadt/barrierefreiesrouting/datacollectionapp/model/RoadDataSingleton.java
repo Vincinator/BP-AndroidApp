@@ -3,6 +3,9 @@ package com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.dynamicObstacleFragmentEditor.ObstacleViewModel;
 
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 
@@ -21,6 +24,11 @@ public class RoadDataSingleton {
 
     private static volatile RoadDataSingleton instance = null;
     private Way way;
+
+
+    public ArrayList<Overlay> currentOverlayItems = new ArrayList<>();
+
+
 
     /*  ##########################################################
         #Attribute needed for Export Tools

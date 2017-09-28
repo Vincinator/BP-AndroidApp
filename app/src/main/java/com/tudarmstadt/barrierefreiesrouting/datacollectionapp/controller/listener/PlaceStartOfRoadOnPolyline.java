@@ -3,10 +3,9 @@ package com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.liste
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.util.Log;
 
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
-import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoadPositionSelectedOnPolylineEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.NewRoadMarkerPlacedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.interfaces.IUserInteractionWithMap;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.CustomPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ParcedOverpassRoad;
@@ -18,6 +17,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 
@@ -29,19 +29,19 @@ import java.util.List;
  */
 
 public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUserInteractionWithMap {
-    public List<GeoPoint> roadEndPoints = new ArrayList<>();
-    public boolean last;
-    public ParcedOverpassRoad newStreet;
-    public ArrayList<PlaceStartOfRoadOnPolyline> pl = new ArrayList<>();
-    public List<Marker> RoadMarker = new ArrayList<>();
-    public List<ParcedOverpassRoad> RoadList = new ArrayList<>();
-    public MapEditorFragment mapEditorFragment;
-    public List<Polyline> currentRoadCapture = new ArrayList<>();
+    private List<GeoPoint> roadEndPoints = new ArrayList<>();
+    private boolean last;
+    private ParcedOverpassRoad newStreet;
+    private ArrayList<PlaceStartOfRoadOnPolyline> pl = new ArrayList<>();
+    private List<Marker> RoadMarker = new ArrayList<>();
+    private List<ParcedOverpassRoad> RoadList = new ArrayList<>();
+    private MapEditorFragment mapEditorFragment;
+    private List<Polyline> currentRoadCapture = new ArrayList<>();
 
-    public PlaceStartOfRoadOnPolyline() {
+    public PlaceStartOfRoadOnPolyline(MapEditorFragment mapEditorFragment) {
+        this.mapEditorFragment = mapEditorFragment;
         pl.add(this);
     }
-
 
     @Override
     public boolean onClick(Polyline polyline, MapView mapView, GeoPoint geoPoint) {
@@ -50,19 +50,24 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                 for (PlaceStartOfRoadOnPolyline pp : pl) {
                     pp.last = true;
                 }
-
                 Point projectedPoint = mapView.getProjection().toProjectedPixels(geoPoint.getLatitude(), geoPoint.getLongitude(), null);
                 Point finalPoint = mapView.getProjection().toPixelsFromProjected(projectedPoint, null);
 
-                // TODO: Bi Check
                 if (polyline instanceof CustomPolyline) {
                     CustomPolyline cuspo = (CustomPolyline) polyline;
                     RoadDataSingleton.getInstance().setId_firstWAY(cuspo.getRoad().id);
                 }
                 // Send Event that an Obstacle Position has been set, and send the position on the line with the event.
                 // Subscriber will be notified about this post, but only one specified method will be called  getClosestPointOnPolyLine(mapView,polyline, finalPoint))
-                EventBus.getDefault().post(new RoadPositionSelectedOnPolylineEvent(getClosestPointOnPolyLine(mapView, polyline, finalPoint)));
+                GeoPoint point = getClosestPointOnPolyLine(mapView, polyline, finalPoint);
+                if (point != null) {
+                    OverlayItem overlayItem = new OverlayItem("", "", point);
+                    mapEditorFragment.placeRoadEditMarkerOverlay.addItem(overlayItem);
 
+                    mapEditorFragment.map.invalidate();
+                    EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
+
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -76,7 +81,6 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
             Polyline streetLine = new Polyline();
             roadEndPoints.add(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
             roadEndPoints.add(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude() + 0.0002));
-            //roadEndPoints.add(new GeoPoint(geoPoint.getLatitude() + 0.0002, geoPoint.getLongitude()));
             newStreet.setRoadList(roadEndPoints);
 
             streetLine = setUPPoly(streetLine, mapView, roadEndPoints);
@@ -108,10 +112,16 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
             RoadList.add(newStreet);
 
-            Log.d("myTag", "This is my message");
             //roadEndPoints.clear();
-            EventBus.getDefault().post(new RoadPositionSelectedOnPolylineEvent(geoPoint));
 
+            if (geoPoint != null) {
+                OverlayItem overlayItem = new OverlayItem("", "", geoPoint);
+
+                mapEditorFragment.placeRoadEditMarkerOverlay.addItem(overlayItem);
+                mapEditorFragment.map.invalidate();
+                EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
+
+            }
 
             return true;
         } else {
@@ -128,8 +138,15 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                 }
                 // Send Event that an Obstacle Position has been set, and send the position on the line with the event.
                 // Subscriber will be notified about this post, but only one specified method will be called  getClosestPointOnPolyLine(mapView,polyline, finalPoint))
-                EventBus.getDefault().post(new RoadPositionSelectedOnPolylineEvent(getLASTClosestPointOnPolyLine(mapView, polyline, finalPoint)));
+                mapEditorFragment.placeRoadEditMarkerOverlay.removeAllItems();
+                GeoPoint point = getLastClosestPointOnPolyLine(mapView, polyline, finalPoint);
+                if (point != null) {
+                    OverlayItem overlayItem = new OverlayItem("", "", point);
+                    mapEditorFragment.placeRoadEditMarkerOverlay.addItem(overlayItem);
+                    mapEditorFragment.map.invalidate();
+                    EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
 
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -139,7 +156,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
             RoadList.add(newStreet);
 
             List<GeoPoint> gp = new ArrayList<GeoPoint>();
-            List<Overlay> xx = mapView.getOverlays();
+            List<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
 
             // Workaround: when initial polyline and marker for road editor is not set yet
             if(  !(xx.get(xx.size() - 1) instanceof Polyline) ||
@@ -257,7 +274,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         return candidate;
     }
 
-    private GeoPoint getLASTClosestPointOnPolyLine(MapView mapView, Polyline polyline, Point point) {
+    private GeoPoint getLastClosestPointOnPolyLine(MapView mapView, Polyline polyline, Point point) {
 
         if (polyline.getPoints().size() < 2)
             return null;
@@ -268,7 +285,6 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         Point candidatePoint = null;
 
         /**
-         * IMPORTANT HINT FOR BI:
          * The nodes are ordered in the polyline.
          * this means, that we can iterate through the polyline and get the nearest line
          * of the polyline to the placed Point.
@@ -318,8 +334,8 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
 
     public void addMapOverlay(Marker marker, Polyline polyline, MapView map) {
-        map.getOverlays().add(marker);
-        map.getOverlayManager().add(polyline);
+        RoadDataSingleton.getInstance().currentOverlayItems.add(marker);
+        RoadDataSingleton.getInstance().currentOverlayItems.add(polyline);
         map.invalidate();
     }
 

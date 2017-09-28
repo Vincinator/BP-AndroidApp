@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.NewRoadMarkerPlacedEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.ObstacleOverlayItemLongPressEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoadsHelperOverlayChangedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.DragObstacleListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
@@ -26,6 +28,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overla
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.interfaces.IUserInteractionWithMap;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.CustomPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ParcedOverpassRoad;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.RoadDataSingleton;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.fragments.MapEditorFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -59,19 +62,19 @@ import okhttp3.Response;
  */
 public class RoadEditorOperator implements IUserInteractionWithMap {
 
-    public NearestRoadsOverlay roadsOverlay;
-    public List<GeoPoint> roadEndPoints = new ArrayList<>();
-    public List<ParcedOverpassRoad> RoadList = new ArrayList<>();
-    public List<List<Polyline>> colorCapture = new ArrayList<>();
-    public List<Marker> RoadMarker = new ArrayList<>();
-    public List<Polyline> currentRoadCapture = new ArrayList<>();
-    public GetHighwaysFromOverpassAPITask task;
-
+    private NearestRoadsOverlay roadsOverlay;
+    private List<GeoPoint> roadEndPoints = new ArrayList<>();
+    private List<ParcedOverpassRoad> RoadList = new ArrayList<>();
+    private List<Marker> RoadMarker = new ArrayList<>();
+    private List<Polyline> currentRoadCapture = new ArrayList<>();
+    private GetHighwaysFromOverpassAPITask task;
+    private MapEditorFragment mapEditorFragment;
 
     // Longpress auf die Map
     @Override
     public boolean longPressHelper(GeoPoint p, Activity context, MapEditorFragment mapEditorFragment) {
         ParcedOverpassRoad newStreet = new ParcedOverpassRoad();
+        this.mapEditorFragment = mapEditorFragment;
         if (RoadList.size() != 0) {
             newStreet.id = RoadList.get(RoadList.size() - 1).id + 1;
         } else {
@@ -136,13 +139,10 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
         }
 
         List<GeoPoint> geoPointsForRoadList = new ArrayList<GeoPoint>();
-        List<Overlay> xx = mapEditorFragment.map.getOverlays();
+        ArrayList<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
 
         // Workaround: when initial polyline and marker for road editor is not set yet
-        if(  !(xx.get(xx.size() - 1) instanceof Polyline) ||
-             !(xx.get(xx.size() - 3) instanceof Polyline) ||
-                !(xx.get(xx.size() - 2) instanceof Marker) ||
-                !(xx.get(xx.size() - 4) instanceof Marker)){
+        if(xx.size() < 4){
             return false;
         }
 
@@ -177,7 +177,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             end.isDraggable();
             end.setOnMarkerDragListener(new DragObstacleListener(road, mapEditorFragment, roadEndPoints, this));
 
-            Overlay ov = mapEditorFragment.map.getOverlays().get(mapEditorFragment.map.getOverlays().size()-2);
+            Overlay ov = RoadDataSingleton.getInstance().currentOverlayItems.get(RoadDataSingleton.getInstance().currentOverlayItems.size() -2);
             Marker mark = (Marker)ov;
             mark.setDraggable(false);
 
@@ -186,19 +186,19 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
 
             addMapOverlay(end, streetLine, mapEditorFragment);
+            EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
 
-            mapEditorFragment.map.invalidate();
             return true;
         } else {
-            mapEditorFragment.map.invalidate();
             return false;
         }
 
     }
 
     public void addMapOverlay(Marker marker, Polyline polyline, MapEditorFragment mapEditorFragment) {
-        mapEditorFragment.map.getOverlays().add(marker);
-        mapEditorFragment.map.getOverlayManager().add(polyline);
+
+        RoadDataSingleton.getInstance().currentOverlayItems.add(marker);
+        RoadDataSingleton.getInstance().currentOverlayItems.add(polyline);
         // mapEditorFragment.map.invalidate();
     }
 
@@ -252,18 +252,8 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
                     for (Node n : w.getNodes()) {
                         GeoPoint g = new GeoPoint(n.getLatitude(), n.getLongitude());
                         node.add(g);
-
                     }
                     r.setRoadList(node);
-                    /**
-                     CustomPolyline polyline = new CustomPolyline();
-                     polyline.setPoints(node);
-                     polyline.setColor(Color.GREEN);
-                     polyline.setWidth(18);
-                     // See onClick() method in this class.
-                     polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(context));
-                     polylines.add(polyline);
-                     **/
 
                     roadsOverlay.nearestRoads.add(r);
                 }
@@ -320,7 +310,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
                     polyline.setColor(Color.BLACK);
                     polyline.setWidth(18);
                     // See onClick() method in this class.
-                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline());
+                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
                     polylines.add(polyline);
                 }
 
