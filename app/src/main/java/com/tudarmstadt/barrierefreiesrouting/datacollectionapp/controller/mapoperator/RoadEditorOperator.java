@@ -83,7 +83,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
         RoadList.add(newStreet);
 
         DefaultNearestRoadsDirector roadsDirector = new DefaultNearestRoadsDirector(new NearestRoadsOverlayBuilder());
-        NearestRoadsOverlay roadsOverlay = roadsDirector.construct(p);
+        mapEditorFragment.roadsOverlay = roadsDirector.construct(p);
         mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
 
 
