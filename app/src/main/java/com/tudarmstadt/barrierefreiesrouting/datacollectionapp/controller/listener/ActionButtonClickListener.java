@@ -45,12 +45,11 @@ public class ActionButtonClickListener implements View.OnClickListener {
             Intent intent = new Intent(view.getContext(), PlaceObstacleActivity.class);
             view.getContext().startActivity(intent);
         } else{
-            BrowseMapActivity browseMapActivity = (BrowseMapActivity) view.getContext();
             nodeList.clear();
             List<GeoPoint> geop = new ArrayList<>();
             List<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
 
-            for (int i = xx.size() - 1; i > 0; i--) {
+            for (int i = xx.size() -1 ; i >= 0; i--) {
                 if (Polyline.class.isInstance(xx.get(i)) || Marker.class.isInstance(xx.get(i))) {
                     if (Marker.class.isInstance(xx.get(i))) {
                         xx.get(i).isEnabled();
