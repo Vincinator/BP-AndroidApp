@@ -34,6 +34,7 @@ public class PostStreetToServerTask {
         try {
             jsonString = mapper.writeValueAsString(way);
         } catch (JsonProcessingException e) {
+
         }
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, jsonString);
