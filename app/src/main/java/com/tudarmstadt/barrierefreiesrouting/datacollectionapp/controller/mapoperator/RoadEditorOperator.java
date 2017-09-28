@@ -111,7 +111,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             currentRoadCapture.clear();
         }
         displayHints = new DisplayHints(context);
-        displayHints.simpleHint("Start einer Straße","Um eine Straße zu plazieren, tippen Sie auf eine der straßen (Rot oder Schwarz). Weitere Knoten werden dann durch einfaches klicken auf die karte hinzugefügt. \n ");
+        displayHints.simpleHint("Start einer Straße","Um eine Straße zu plazieren, tippen Sie auf eine der Straßen (Rot oder Schwarz). Weitere Knoten werden dann durch einfaches klicken auf die karte hinzugefügt. \n ");
 
         return true;
     }

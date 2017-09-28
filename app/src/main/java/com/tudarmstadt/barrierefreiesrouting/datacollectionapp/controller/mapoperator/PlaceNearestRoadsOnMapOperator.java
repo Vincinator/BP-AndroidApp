@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoadsHelperOverlayChangedEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.hintMessage.DisplayHints;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceObstacleOnPolygonListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadObstaclesTask;
@@ -64,7 +65,7 @@ import okhttp3.Response;
  */
 
 public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
-
+    private DisplayHints displayHints;
 
     public PlaceNearestRoadsOnMapOperator() {
     }
@@ -84,6 +85,11 @@ public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
 
         //Downloads all custom roads.
         DownloadRoadTask.downloadroad();
+
+
+        displayHints = new DisplayHints(mapEditorFragment.map.getContext());
+        displayHints.simpleHint("Barriere Hinzufügen", "Um eine TREPPE hinzuzufügen müssen Sie 2 Marker setzen, durch klicken auf die (rot oder schwarz) Straßen. Der ERSTE Marker ist der Anfang und der ZWEITE das Ende der Treppe. Anschließend auf den '+' Button klciken.");
+
 
         return true;
     }
