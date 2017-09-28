@@ -23,7 +23,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -40,6 +39,7 @@ public class MapEditorFragment extends Fragment implements MapEventsReceiver {
     public MapView map;
     public ItemizedOverlayWithFocus<ObstacleOverlayItem> obstacleOverlay;
     public ItemizedOverlayWithFocus<OverlayItem> placeNewObstacleOverlay;
+
     public ItemizedOverlayWithFocus<OverlayItem> placeRoadEditMarkerOverlay;
     public NearestRoadsOverlay roadsOverlay;
 
@@ -135,6 +135,8 @@ public class MapEditorFragment extends Fragment implements MapEventsReceiver {
                         return false;
                     }
                 });
+
+
 
         placeRoadEditMarkerOverlay = new ItemizedOverlayWithFocus<>(getActivity(), tempObstacleItems,
                 new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {

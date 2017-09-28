@@ -110,6 +110,7 @@ public class BrowseMapActivity extends AppCompatActivity
     public MapEditorFragment mapEditorFragment;
     private long selectedBarrier;
     private ArrayList<Polyline> currentPolylineArrayList = new ArrayList<>();
+    private ArrayList<Polyline> currentStairsPolylines = new ArrayList<>();
 
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private CustomPolyline currentPolyline;
@@ -252,7 +253,9 @@ public class BrowseMapActivity extends AppCompatActivity
             for (Polyline p : currentPolylineArrayList) {
                 mapEditorFragment.map.getOverlays().remove(p);
             }
-
+            for (Polyline p : currentStairsPolylines) {
+                mapEditorFragment.map.getOverlays().remove(p);
+            }
             ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
         }
 
@@ -386,11 +389,7 @@ public class BrowseMapActivity extends AppCompatActivity
 
             EventBus.getDefault().post(new RoadsHelperOverlayChangedEvent(polylines));
 
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SAXException | ParserConfigurationException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -517,9 +516,43 @@ public class BrowseMapActivity extends AppCompatActivity
                 public void run() {
                     for (Obstacle obstacle : obstacleList) {
                         // Only the starting point is displayed.
-                        ObstacleOverlayItem overlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()), obstacle);
-                        overlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
-                        mapEditorFragment.obstacleOverlay.addItem(overlayItem);
+
+                        if(obstacle instanceof  Stairs && obstacle.getLatitudeEnd() != 0 && obstacle.getLongitudeEnd() != 0){
+                            ObstacleOverlayItem stairsStartOverlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()), obstacle);
+                            ObstacleOverlayItem stairsEndOverlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeEnd(), obstacle.getLongitudeEnd()), obstacle);
+
+                            ArrayList<GeoPoint> points= new ArrayList<>();
+                            points.add(new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()));
+
+                            points.add(new GeoPoint(obstacle.getLatitudeEnd(), obstacle.getLongitudeEnd()));
+
+                            Polyline polyline = new Polyline();
+                            polyline.setPoints(points);
+                            polyline.setColor(Color.GRAY);
+                            polyline.setWidth(12);
+
+                            // See onClick() method in this class.
+                            if(roadEditMode){
+                                polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
+                            }else{
+                                polyline.setOnClickListener(null);
+                            }
+                            currentStairsPolylines.add(polyline);
+                            for (Polyline p : currentStairsPolylines) {
+                                mapEditorFragment.map.getOverlays().add(p);
+                            }
+                            stairsStartOverlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
+                            stairsEndOverlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
+                            mapEditorFragment.obstacleOverlay.addItem(stairsStartOverlayItem);
+                            mapEditorFragment.obstacleOverlay.addItem(stairsEndOverlayItem);
+
+                        }else{
+                            ObstacleOverlayItem overlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()), obstacle);
+                            overlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
+                            mapEditorFragment.obstacleOverlay.addItem(overlayItem);
+                        }
+
+
                     }
                     Toast.makeText(getBaseContext(), getString(R.string.action_barrier_loaded),
                             Toast.LENGTH_SHORT).show();
