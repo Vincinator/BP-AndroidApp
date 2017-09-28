@@ -34,31 +34,28 @@ public class PostStreetToServerTask {
         try {
             jsonString = mapper.writeValueAsString(way);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(JSON, jsonString);
+
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(RoutingServerAPI.baseURL + RoutingServerAPI.roadResource)
+                    .post(body)
+                    .build();
+
+            client.newCall(request)
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(final Call call, IOException e) {
+                            Log.d("Error", e.toString());
+                        }
+
+                        @Override
+                        public void onResponse(Call call, final Response response) throws IOException {
+                            EventBus.getDefault().post(new RoutingServerStreetPostedEvent(response, way));
+                        }
+                    });
         }
-
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, jsonString);
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(RoutingServerAPI.baseURL + RoutingServerAPI.roadResource)
-                .post(body)
-                .build();
-
-        client.newCall(request)
-                .enqueue(new Callback() {
-                    @Override
-                    public void onFailure(final Call call, IOException e) {
-                        Log.d("Error", e.toString());
-                    }
-
-                    @Override
-                    public void onResponse(Call call, final Response response) throws IOException {
-                        EventBus.getDefault().post(new RoutingServerStreetPostedEvent(response, way));
-                    }
-                });
     }
 }
-

@@ -56,7 +56,7 @@ public class ParcedOverpassRoad implements Parcelable {
     /**
      * All GeoPoints that form the ParcedOverpassRoad.
      */
-    public void setROADList(List<GeoPoint> list) {
+    public void setRoadList(List<GeoPoint> list) {
         roadPoints = (ArrayList) list;
     }
 

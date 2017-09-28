@@ -35,9 +35,11 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.events
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerObstaclePostedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerObstaclesDownloadedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerRoadDownloadEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerStreetPostedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.StartEditObstacleEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.ActionButtonClickListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceObstacleOnPolygonListener;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.mapoperator.PlaceNearestRoadsOnMapOperator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.mapoperator.RoadEditorOperator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadBlacklistedRoadsTask;
@@ -356,7 +358,13 @@ public class BrowseMapActivity extends AppCompatActivity
                         streetLine.setColor(Color.RED);
                         streetLine.setPoints(gp);
                         streetLine.setGeodesic(true);
-                        streetLine.setOnClickListener(new PlaceObstacleOnPolygonListener());
+                        if(roadEditMode){
+                            streetLine.setOnClickListener(new PlaceStartOfRoadOnPolyline());
+
+                        }else{
+                            streetLine.setOnClickListener(new PlaceObstacleOnPolygonListener());
+
+                        }
                         streetLine.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, mapEditorFragment.map));
                         mapEditorFragment.map.getOverlays().add(streetLine);
 
@@ -466,8 +474,6 @@ public class BrowseMapActivity extends AppCompatActivity
             mapEditorFragment.map.invalidate();
             floatingActionButton.show();
         }
-        //RoadDataSingleton.getInstance().currentStartingPositionOfSetObstacle = point;
-
     }
 
 
@@ -545,6 +551,14 @@ public class BrowseMapActivity extends AppCompatActivity
         mapEditorFragment.map.invalidate();
 
     }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(RoutingServerStreetPostedEvent event) {
+
+
+    }
+
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)

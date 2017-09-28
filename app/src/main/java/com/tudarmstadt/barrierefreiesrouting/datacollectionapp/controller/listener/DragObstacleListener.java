@@ -27,24 +27,21 @@ public class DragObstacleListener implements Marker.OnMarkerDragListener {
     MapView mv;
     RoadEditorOperator roadEditorOperator;
     PlaceStartOfRoadOnPolyline ProadEditorOperator;
-    Context context;
     ParcedOverpassRoad road;
     boolean switcher = false;
     boolean once = false;
 
-    public DragObstacleListener(ParcedOverpassRoad road, MapEditorFragment mapEditorFragment, List<GeoPoint> roadPoints, RoadEditorOperator roadEditorOperator, Context context) {
+    public DragObstacleListener(ParcedOverpassRoad road, MapEditorFragment mapEditorFragment, List<GeoPoint> roadPoints, RoadEditorOperator roadEditorOperator ) {
         this.mapEditorFragment = mapEditorFragment;
         this.roadPoints = roadPoints;
         this.roadEditorOperator = roadEditorOperator;
-        this.context = context;
         this.road = road;
         this.switcher = false;
     }
-    public DragObstacleListener(ParcedOverpassRoad road, MapView mv, List<GeoPoint> roadPoints, PlaceStartOfRoadOnPolyline ProadEditorOperator, Context context) {
+    public DragObstacleListener(ParcedOverpassRoad road, MapView mv, List<GeoPoint> roadPoints, PlaceStartOfRoadOnPolyline ProadEditorOperator ) {
         this.mv = mv;
         this.roadPoints = roadPoints;
         this.ProadEditorOperator = ProadEditorOperator;
-        this.context = context;
         this.road = road;
         this.switcher = true;
         this.once = true;
@@ -62,7 +59,7 @@ public class DragObstacleListener implements Marker.OnMarkerDragListener {
     public void onMarkerDragEnd(Marker marker) {
 
         GeoPoint geopoint = marker.getPosition();
-        Polyline streetLine = new Polyline(context);
+        Polyline streetLine = new Polyline();
         List<GeoPoint> roadEndPointsCrob = new ArrayList<>();
 
         if(switcher){

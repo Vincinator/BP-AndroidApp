@@ -14,8 +14,8 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listen
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadObstaclesTask;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadRoadTask;
-import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.apiContracts.MainOverpassAPI;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.apiContracts.RamplerOverpassAPI;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.apiContracts.RoutingServerAPI;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.DefaultNearestRoadsDirector;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.NearestRoadsOverlay;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.NearestRoadsOverlayBuilder;
@@ -83,9 +83,6 @@ public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
         mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
 
         PlaceNearestRoadsOnMapOperator.GetHighwaysFromOverpassAPITask task = new PlaceNearestRoadsOnMapOperator.GetHighwaysFromOverpassAPITask(context);
-        task2 = new GetHighwaysFromCustomServerTask(context);
-        task2.execute(roadsOverlay.center, roadsOverlay.radius);
-
         task.execute(roadsOverlay.center, roadsOverlay.radius);
 
 
@@ -150,7 +147,7 @@ public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
                         node.add(g);
 
                     }
-                    r.setROADList(node);
+                    r.setRoadList(node);
                     roadsOverlay.nearestRoads.add(r);
                 }
 
@@ -310,7 +307,7 @@ public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
             RequestBody body = RequestBody.create(MediaType.parse("text/plain"), RamplerOverpassAPI.getNearestHighwaysPayload(p, radius));
 
             Request request = new Request.Builder()
-                    .url("https://routing.vincinator.de/api/barriers/ways/radius?lat1=" + p.getLatitude() + "&long1=" + p.getLongitude() + "&radius=" + radius)
+                    .url(RoutingServerAPI.baseURL + RoutingServerAPI.roadResource + "/radius?lat1=" + p.getLatitude() + "&long1=" + p.getLongitude() + "&radius=" + radius)
                     .build();
 
             Response response = null;

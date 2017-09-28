@@ -16,7 +16,9 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.events
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.DragObstacleListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadObstaclesTask;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadRoadTask;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.apiContracts.RamplerOverpassAPI;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.apiContracts.RoutingServerAPI;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.DefaultNearestRoadsDirector;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.NearestRoadsOverlay;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.NearestRoadsOverlayBuilder;
@@ -64,7 +66,6 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
     public List<Marker> RoadMarker = new ArrayList<>();
     public List<Polyline> currentRoadCapture = new ArrayList<>();
     public GetHighwaysFromOverpassAPITask task;
-    public GetHighwaysFromCustomServerTask task2;
 
 
     // Longpress auf die Map
@@ -77,9 +78,6 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             newStreet.id = 0;
         }
 
-
-/** https://routing.vincinator.de/api/barriers/ways/radius?lat1=49.873090&long1=8.659275&radius=100**/
-
         newStreet.name = "Street: " + newStreet.id;
 
         RoadList.add(newStreet);
@@ -88,8 +86,8 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
         roadsOverlay = roadsDirector.construct(p);
         mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
 
-        task2 = new GetHighwaysFromCustomServerTask(context);
-        task2.execute(roadsOverlay.center, roadsOverlay.radius);
+        //Downloads all custom roads.
+        DownloadRoadTask.downloadroad();
 
         task = new GetHighwaysFromOverpassAPITask(context);
         task.execute(roadsOverlay.center, roadsOverlay.radius);
@@ -136,28 +134,37 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
             return false;
         }
-        List<GeoPoint> gp = new ArrayList<GeoPoint>();
+
+        List<GeoPoint> geoPointsForRoadList = new ArrayList<GeoPoint>();
         List<Overlay> xx = mapEditorFragment.map.getOverlays();
+
+        // Workaround: when initial polyline and marker for road editor is not set yet
+        if(  !(xx.get(xx.size() - 1) instanceof Polyline) ||
+             !(xx.get(xx.size() - 3) instanceof Polyline) ||
+                !(xx.get(xx.size() - 2) instanceof Marker) ||
+                !(xx.get(xx.size() - 4) instanceof Marker)){
+            return false;
+        }
+
         ParcedOverpassRoad road = RoadList.get(RoadList.size() - 1);
+
         //TODO: cast causes error sometimes.
         road.polylines.add((Polyline) xx.get(xx.size() - 1));
         road.polylines.add((Polyline) xx.get(xx.size() - 3));
 
         Marker x = (Marker) xx.get(xx.size() - 4);
-        gp.add(x.getPosition());
+        geoPointsForRoadList.add(x.getPosition());
         x = (Marker) xx.get(xx.size() - 2);
-        gp.add(x.getPosition());
-        road.setROADList(gp);
+        geoPointsForRoadList.add(x.getPosition());
+        road.setRoadList(geoPointsForRoadList);
 
 
         if (road.getRoadPoints().size() > 0) {
 
             List<GeoPoint> roadEndPointsCrob = new ArrayList<>();
-            Polyline streetLine = new Polyline(context);
-
+            Polyline streetLine = new Polyline();
 
             road.setRoadPoints(geoPoint);
-
 
             roadEndPointsCrob.add(road.getRoadPoints().get(road.getRoadPoints().size() - 2));
             roadEndPointsCrob.add(geoPoint);
@@ -168,9 +175,8 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             end.setTitle("endPunkt");
             end.setDraggable(true);
             end.isDraggable();
-            end.setOnMarkerDragListener(new DragObstacleListener(road, mapEditorFragment, roadEndPoints, this, context));
+            end.setOnMarkerDragListener(new DragObstacleListener(road, mapEditorFragment, roadEndPoints, this));
 
-            List<Overlay> xxxx = mapEditorFragment.map.getOverlays();
             Overlay ov = mapEditorFragment.map.getOverlays().get(mapEditorFragment.map.getOverlays().size()-2);
             Marker mark = (Marker)ov;
             mark.setDraggable(false);
@@ -217,7 +223,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
      *
      * @param response
      */
-    protected void processRoads(Response response, Context context) {
+    protected void processRoads(Response response) {
         ArrayList<PlaceStartOfRoadOnPolyline> list = new ArrayList<>();
         if (response != null && response.isSuccessful()) {
 
@@ -248,7 +254,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
                         node.add(g);
 
                     }
-                    r.setROADList(node);
+                    r.setRoadList(node);
                     /**
                      CustomPolyline polyline = new CustomPolyline();
                      polyline.setPoints(node);
@@ -314,9 +320,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
                     polyline.setColor(Color.BLACK);
                     polyline.setWidth(18);
                     // See onClick() method in this class.
-                    PlaceStartOfRoadOnPolyline pla = new PlaceStartOfRoadOnPolyline(context, pl);
-                    pl.add(pla);
-                    polyline.setOnClickListener(pla);
+                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline());
                     polylines.add(polyline);
                 }
 
@@ -421,16 +425,12 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
 
             GeoPoint p = (GeoPoint) params[0];
             int radius = (int) params[1];
-            // DownloadObstaclesTask task = new DownloadObstaclesTask();
             OkHttpClient client = new OkHttpClient();
-
-            RequestBody body = RequestBody.create(MediaType.parse("text/plain"), RamplerOverpassAPI.getNearestHighwaysPayload(p, radius));
-
             Request request = new Request.Builder()
-                    .url("https://routing.vincinator.de/api/barriers/ways/radius?lat1=" + p.getLatitude() + "&long1=" + p.getLongitude() + "&radius=" + radius)
+                    .url(RoutingServerAPI.baseURL + RoutingServerAPI.roadResource + "radius?lat1=" + p.getLatitude() + "&long1=" + p.getLongitude() + "&radius=" + radius)
                     .build();
 
-            Response response = null;
+            Response response;
             try {
                 response = client.newCall(request).execute();
             } catch (Exception e) {
@@ -453,7 +453,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-            processRoads(result, progressDialog.getContext());
+            processRoads(result);
 
 
         }
