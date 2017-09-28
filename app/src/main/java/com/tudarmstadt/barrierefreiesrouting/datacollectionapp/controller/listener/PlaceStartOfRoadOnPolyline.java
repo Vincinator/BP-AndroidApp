@@ -83,7 +83,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
             roadEndPoints.add(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude() + 0.0002));
             newStreet.setRoadList(roadEndPoints);
 
-            streetLine = setUPPoly(streetLine, mapView, roadEndPoints);
+            streetLine = setupPolyline(streetLine, mapView, roadEndPoints);
 
 
             Marker startMarker = new Marker(mapView);
@@ -189,7 +189,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
                 roadEndPointsCrob.add(road.getRoadPoints().get(road.getRoadPoints().size() - 2));
                 roadEndPointsCrob.add(geoPoint);
-                streetLine = setUPPoly(streetLine, mapView, roadEndPointsCrob);
+                streetLine = setupPolyline(streetLine, mapView, roadEndPointsCrob);
 
                 Marker end = new Marker(mapView);
                 end.setPosition(geoPoint);
@@ -220,13 +220,12 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         if (polyline.getPoints().size() < 2)
             return null;
 
-        GeoPoint start = null;
-        GeoPoint end = null;
+        GeoPoint start;
+        GeoPoint end;
         GeoPoint candidate = null;
         Point candidatePoint = null;
 
         /**
-         * IMPORTANT HINT FOR BI:
          * The nodes are ordered in the polyline.
          * this means, that we can iterate through the polyline and get the nearest line
          * of the polyline to the placed Point.
@@ -279,8 +278,8 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         if (polyline.getPoints().size() < 2)
             return null;
 
-        GeoPoint start = null;
-        GeoPoint end = null;
+        GeoPoint start;
+        GeoPoint end;
         GeoPoint candidate = null;
         Point candidatePoint = null;
 
@@ -339,7 +338,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         map.invalidate();
     }
 
-    public Polyline setUPPoly(Polyline streetLine, MapView map, List<GeoPoint> list) {
+    public Polyline setupPolyline(Polyline streetLine, MapView map, List<GeoPoint> list) {
 
         streetLine.setTitle("Text param");
         streetLine.setWidth(10f);
@@ -364,7 +363,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         if (roadEndPoints.size() > 0) {
 
             List<GeoPoint> roadEndPointsCrob = new ArrayList<>();
-            Polyline streetLine = new Polyline(context);
+            Polyline streetLine = new Polyline();
 
 
             roadEndPoints.add(p);
@@ -372,7 +371,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
             roadEndPointsCrob.add(roadEndPoints.get(roadEndPoints.size() - 2));
             roadEndPointsCrob.add(p);
-            streetLine = setUPPoly(streetLine, mapEditorFragment.map, roadEndPointsCrob);
+            streetLine = setupPolyline(streetLine, mapEditorFragment.map, roadEndPointsCrob);
 
             Marker end = new Marker(mapEditorFragment.map);
             end.setPosition(p);
@@ -409,15 +408,6 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
         Point e2 = new Point(p.x - v1.x, p.y - v1.y);
         double value = dot(e1, e2);
         return (value > 0 && value < recAreaToTest);
-    }
-
-    public boolean isProjectedPointOnLineSegment(Point v1, Point v2, Point p, double tolerance) {
-        Point e1 = new Point(v2.x - v1.x, v2.y - v1.y);
-        int recAreaToTest = dot(e1, e1);
-
-        Point e2 = new Point(p.x - v1.x, p.y - v1.y);
-        double value = dot(e1, e2);
-        return ((value > 0 + tolerance || value > 0 - tolerance) && (value < recAreaToTest - tolerance || value < recAreaToTest + tolerance));
     }
 
     /**

@@ -179,15 +179,9 @@ public class BrowseMapActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 roadEditMode = false;
-                floatingActionButton.hide();
 
-                mapEditorFragment.map.getOverlays().removeAll(currentPolylineArrayList);
-                currentPolylineArrayList.clear();
-                mapEditorFragment.map.getOverlays().removeAll(RoadDataSingleton.getInstance().currentOverlayItems);
-                RoadDataSingleton.getInstance().currentOverlayItems.clear();
+                switchEditModeCleanUp();
 
-                mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
-                ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
                 mapEditorFragment.getStateHandler().setActiveOperator(new PlaceNearestRoadsOnMapOperator());
                 mapEditorFragment.map.invalidate();
 
@@ -199,15 +193,9 @@ public class BrowseMapActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 roadEditMode = true;
-                floatingActionButton.hide();
 
-                mapEditorFragment.map.getOverlays().removeAll(currentPolylineArrayList);
-                currentPolylineArrayList.clear();
-                mapEditorFragment.map.getOverlays().removeAll(RoadDataSingleton.getInstance().currentOverlayItems);
-                RoadDataSingleton.getInstance().currentOverlayItems.clear();
+                switchEditModeCleanUp();
 
-                mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
-                ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
                 mapEditorFragment.getStateHandler().setActiveOperator(new RoadEditorOperator());
                 mapEditorFragment.map.invalidate();
 
@@ -222,6 +210,17 @@ public class BrowseMapActivity extends AppCompatActivity
         AlertDialog startupAlertDialog = startupAlertBuilder.create();
         startupAlertDialog.show();
 
+    }
+
+    private void switchEditModeCleanUp() {
+        floatingActionButton.hide();
+        mapEditorFragment.map.getOverlays().removeAll(currentPolylineArrayList);
+        currentPolylineArrayList.clear();
+        mapEditorFragment.map.getOverlays().removeAll(RoadDataSingleton.getInstance().currentOverlayItems);
+        RoadDataSingleton.getInstance().currentOverlayItems.clear();
+        mapEditorFragment.placeRoadEditMarkerOverlay.removeAllItems();
+        mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
+        ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
     }
 
     @Override

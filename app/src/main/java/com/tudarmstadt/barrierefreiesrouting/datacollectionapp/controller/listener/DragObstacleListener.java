@@ -1,9 +1,7 @@
 package com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener;
 
-import android.content.Context;
 import android.graphics.Color;
 
-import com.google.android.gms.location.places.Place;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.mapoperator.RoadEditorOperator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ParcedOverpassRoad;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.fragments.MapEditorFragment;
@@ -105,7 +103,7 @@ public class DragObstacleListener implements Marker.OnMarkerDragListener {
                 road.setRoadPoints(geopoint);
             }
 
-            streetLine = ProadEditorOperator.setUPPoly(streetLine, mv, roadEndPointsCrob);
+            streetLine = ProadEditorOperator.setupPolyline(streetLine, mv, roadEndPointsCrob);
             mv.getOverlayManager().add(streetLine);
             mv.invalidate();
         }else{
