@@ -38,6 +38,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.events
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerRoadDownloadEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerStreetPostedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.StartEditObstacleEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.hintMessage.DisplayHints;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.ActionButtonClickListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceObstacleOnPolygonListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
@@ -109,6 +110,7 @@ public class BrowseMapActivity extends AppCompatActivity
     public FloatingActionButton floatingActionButton;
     public MapEditorFragment mapEditorFragment;
     private long selectedBarrier;
+    private DisplayHints displayHints;
     ArrayList<PlaceStartOfRoadOnPolyline> controleOfStart = new ArrayList<PlaceStartOfRoadOnPolyline>();
     private ArrayList<Polyline> currentPolylineArrayList = new ArrayList<>();
     private ArrayList<Polyline> currentStairsPolylines = new ArrayList<>();
@@ -126,7 +128,6 @@ public class BrowseMapActivity extends AppCompatActivity
         DownloadBlacklistedRoadsTask.downloadBlacklistedWays();
 
         setContentView(R.layout.activity_browser_map);
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -181,12 +182,15 @@ public class BrowseMapActivity extends AppCompatActivity
         placeObstacleModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                displayHints = new DisplayHints(mapEditorFragment.map.getContext());
+                displayHints.displaySmallHint("Obstacle Mode activated", mapEditorFragment.map);
                 roadEditMode = false;
 
                 switchEditModeCleanUp();
 
                 mapEditorFragment.getStateHandler().setActiveOperator(new PlaceNearestRoadsOnMapOperator());
                 mapEditorFragment.map.invalidate();
+                displayHints.simpleHint("Obstacle Mode entered","Um ein Hinderniss zu plazieren, führen sie bitte einen Longpress* auf der Karte durch Damit ihnen das Straßennetz gezeigt wird. \n * 2-3 sekunden mit dem finger auf den bildschirm drücken.");
 
 
             }
@@ -195,12 +199,15 @@ public class BrowseMapActivity extends AppCompatActivity
         roadEditorModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                displayHints = new DisplayHints(mapEditorFragment.map.getContext());
+                displayHints.displaySmallHint("Road Mode activated", mapEditorFragment.map);
                 roadEditMode = true;
 
                 switchEditModeCleanUp();
 
                 mapEditorFragment.getStateHandler().setActiveOperator(new RoadEditorOperator());
                 mapEditorFragment.map.invalidate();
+                displayHints.simpleHint("Road Mode entered","Um eine Straße zu plazieren, führen sie bitte einen Longpress* auf der Karte durch Damit ihnen das Straßennetz gezeigt wird. \n * 2-3 sekunden mit dem finger auf den bildschirm drücken.");
 
             }
         });

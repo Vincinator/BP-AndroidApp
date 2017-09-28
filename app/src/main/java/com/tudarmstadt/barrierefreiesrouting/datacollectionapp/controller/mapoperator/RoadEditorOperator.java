@@ -16,6 +16,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.events
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.ObstacleOverlayItemLongPressEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoadsHelperOverlayChangedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerRoadDownloadEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.hintMessage.DisplayHints;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.DragObstacleListener;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.PlaceStartOfRoadOnPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadObstaclesTask;
@@ -34,6 +35,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.RoadDataSin
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.fragments.MapEditorFragment;
 
 import org.greenrobot.eventbus.EventBus;
+import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
@@ -67,6 +69,8 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
     private List<GeoPoint> roadEndPoints = new ArrayList<>();
     private List<ParcedOverpassRoad> RoadList = new ArrayList<>();
     private List<Polyline> currentRoadCapture = new ArrayList<>();
+    DisplayHints displayHints;
+
 
     // Longpress auf die Map
     @Override
@@ -106,7 +110,9 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
             //mapEditorFragment.map.invalidate();
             currentRoadCapture.clear();
         }
-        
+        displayHints = new DisplayHints(context);
+        displayHints.simpleHint("Start einer Straße","Um eine Straße zu plazieren, tippen Sie auf eine der straßen (Rot oder Schwarz). Weitere Knoten werden dann durch einfaches klicken auf die karte hinzugefügt. \n ");
+
         return true;
     }
 

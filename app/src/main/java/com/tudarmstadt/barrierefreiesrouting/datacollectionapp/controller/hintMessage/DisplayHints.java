@@ -2,6 +2,11 @@ package com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.hintM
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
+
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
+
+import org.osmdroid.views.MapView;
 
 /**
  * Created by deniz on 27.09.17.
@@ -15,10 +20,10 @@ public class DisplayHints {
         this.context = context;
     }
 
-    private void simpleHint(String title, String s){
+    public void simpleHint(String title, String s){
         android.app.AlertDialog.Builder builder1 = new android.app.AlertDialog.Builder(context);
-        builder1.setTitle("Start Hilfe");
-        builder1.setMessage("Um die umliegenden Straßen \"chlickbar\" zu machen, erfordert dies ein längeres gedrückthalten des fingers von ca. 2-3sec. auf den Bildschirm");
+        builder1.setTitle(title);
+        builder1.setMessage(s);
         builder1.setCancelable(true);
 
         builder1.setPositiveButton(
@@ -32,5 +37,9 @@ public class DisplayHints {
 
         android.app.AlertDialog alert11 = builder1.create();
         alert11.show();
+    }
+
+    public void displaySmallHint(String message, MapView mv){
+        Toast.makeText(mv.getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
