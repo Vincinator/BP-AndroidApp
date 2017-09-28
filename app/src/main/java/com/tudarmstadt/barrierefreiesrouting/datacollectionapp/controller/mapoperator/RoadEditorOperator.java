@@ -139,6 +139,7 @@ public class RoadEditorOperator implements IUserInteractionWithMap {
         List<GeoPoint> gp = new ArrayList<GeoPoint>();
         List<Overlay> xx = mapEditorFragment.map.getOverlays();
         ParcedOverpassRoad road = RoadList.get(RoadList.size() - 1);
+        //TODO: cast causes error sometimes.
         road.polylines.add((Polyline) xx.get(xx.size() - 1));
         road.polylines.add((Polyline) xx.get(xx.size() - 3));
 
