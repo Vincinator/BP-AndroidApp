@@ -117,6 +117,7 @@ public class OverviewSendFragment extends Fragment implements BlockingStep, IObs
 
         // TODO: place this in the success of the server message (?) and update the BrowseMapActivity manually
         ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = true;
+        ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = false;
 
         // After inserting
         DownloadBlacklistedRoadsTask.downloadBlacklistedWays();

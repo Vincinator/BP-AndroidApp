@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="BARRIER_TYPES">
-        <item>@string/obstacle_label_stairs</item>
-        <item>@string/obstacle_label_ramp</item>
+    <string-array name="SINGLE_NODE_OBSTACLE_TYPES">
         <item>@string/obstacle_label_unevenness</item>
         <item>@string/obstacle_label_construction</item>
         <item>@string/obstacle_label_fast_traffic_light</item>
         <item>@string/obstacle_label_elevator</item>
         <item>@string/obstacle_label_tight_passage</item>
     </string-array>
+
+    <string-array name="DOUBLE_NODE_OBSTACLE_TYPES">
+        <item>@string/obstacle_label_stairs</item>
+    </string-array>
+
 
 </resources>

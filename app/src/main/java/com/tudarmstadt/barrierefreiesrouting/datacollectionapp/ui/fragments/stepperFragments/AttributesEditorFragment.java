@@ -69,8 +69,15 @@ public class AttributesEditorFragment extends Fragment implements Step {
         try {
 
             Spinner spinner = (Spinner) view.findViewById(R.id.spinner_obstacle_selection);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                    R.array.BARRIER_TYPES, android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> adapter;
+            if(ObstacleDataSingleton.getInstance().isDoubleNodeObstacle){
+                adapter = ArrayAdapter.createFromResource(getActivity(),
+                        R.array.DOUBLE_NODE_OBSTACLE_TYPES, android.R.layout.simple_spinner_item);
+            }else{
+                adapter = ArrayAdapter.createFromResource(getActivity(),
+                        R.array.SINGLE_NODE_OBSTACLE_TYPES, android.R.layout.simple_spinner_item);
+            }
+
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -84,8 +91,12 @@ public class AttributesEditorFragment extends Fragment implements Step {
                                            int position, long id) {
                     // Send Event that Selection of Obstacle has changed.
                     // HINT: BrowseMapActivity subscribes to this Event.
-                    EventBus.getDefault().post(new SelectedObstacleTypeChangedEvent(getObstacleFrom(position)));
-
+                    if(ObstacleDataSingleton.getInstance().isDoubleNodeObstacle){
+                        EventBus.getDefault().post(new SelectedObstacleTypeChangedEvent(getdoubleNodeObstacleFrom(position)));
+                    }
+                    else{
+                        EventBus.getDefault().post(new SelectedObstacleTypeChangedEvent(getSingleNodeObstacleFrom(position)));
+                    }
 
                 }
 
@@ -131,37 +142,44 @@ public class AttributesEditorFragment extends Fragment implements Step {
 
     }
 
+    private Obstacle getdoubleNodeObstacleFrom(int pos) {
 
-    private Obstacle getObstacleFrom(int pos) {
+        Obstacle result = new Stairs();
 
-        Obstacle result;
-        switch (String.valueOf(pos)) {
-            case "0":
-                result = new Stairs();
-                break;
-            case "2":
-                result = new Unevenness();
-                break;
-            case "3":
-                result = new Construction();
-                break;
-            case "4":
-                result = new FastTrafficLight();
-                break;
-            case "5":
-                result = new Elevator();
-                break;
-            case "6":
-                result = new TightPassage();
-                break;
-            default:
-                result = new Stairs();
-                break;
-
-        }
         result.setLatitudeEnd(ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle.getLatitude());
         result.setLongitudeEnd(ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle.getLongitude());
 
+        result.setLatitudeStart(ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle.getLatitude());
+        result.setLongitudeStart(ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle.getLongitude());
+        return result;
+    }
+    private Obstacle getSingleNodeObstacleFrom(int pos) {
+
+        Obstacle result;
+        switch (String.valueOf(pos)) {
+
+            case "0":
+                result = new Unevenness();
+                break;
+            case "1":
+                result = new Construction();
+                break;
+            case "2":
+                result = new FastTrafficLight();
+                break;
+            case "3":
+                result = new Elevator();
+                break;
+            case "4":
+                result = new TightPassage();
+                break;
+            default:
+                result = new Unevenness();
+                break;
+
+        }
+        result.setLatitudeEnd(0);
+        result.setLongitudeEnd(0);
         result.setLatitudeStart(ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle.getLatitude());
         result.setLongitudeStart(ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle.getLongitude());
         return result;

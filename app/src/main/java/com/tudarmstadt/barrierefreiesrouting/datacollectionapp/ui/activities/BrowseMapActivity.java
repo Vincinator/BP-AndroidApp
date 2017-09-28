@@ -491,6 +491,7 @@ public class BrowseMapActivity extends AppCompatActivity
 
                 mapEditorFragment.map.invalidate();
                 ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = point;
+                ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = true;
                 currentPolyline = null;
 
                 floatingActionButton.show();
@@ -513,6 +514,7 @@ public class BrowseMapActivity extends AppCompatActivity
                 ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle = point;
                 // initialize the end position with the start point.
                 ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = new GeoPoint(0f,0f);
+                ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = false;
 
                 currentPolyline = event.getPolyline();
             } else {
