@@ -372,6 +372,8 @@ public class BrowseMapActivity extends AppCompatActivity
 
             mapEditorFragment.roadsOverlay.nearestRoads = parser.getRoads();
             for (ParcedOverpassRoad r : give) {
+                if (isBlacklisted(r.id))
+                    continue;
                 mapEditorFragment.roadsOverlay.nearestRoads.add(r);
             }
 
@@ -434,9 +436,6 @@ public class BrowseMapActivity extends AppCompatActivity
                 public void run() {
 
                     for (Way way : wayList) {
-
-                        if(isBlacklisted(way))
-                            continue;
 
                         List<GeoPoint> gp = new ArrayList<GeoPoint>();
                         for (Node node : way.getNodes()) {
@@ -604,16 +603,23 @@ public class BrowseMapActivity extends AppCompatActivity
 
         if (!response.isSuccessful())
             return;
+        switchEditModeCleanUp();
+
+        // get the initial Blacklisted ways. Always update after inserting stairs obstacle.
+        DownloadBlacklistedRoadsTask.downloadBlacklistedWays();
+
+        DownloadObstaclesTask.downloadObstacles();
+
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 // Only the starting point is displayed on the map.
-                ObstacleOverlayItem overlayItemStart = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLatitudeStart()), obstacle);
+               // ObstacleOverlayItem overlayItemStart = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLatitudeStart()), obstacle);
 
-                overlayItemStart.setMarker(getResources().getDrawable(R.mipmap.ramppic));
-                mapEditorFragment.obstacleOverlay.addItem(overlayItemStart);
+               // overlayItemStart.setMarker(getResources().getDrawable(R.mipmap.ramppic));
+              //  mapEditorFragment.obstacleOverlay.addItem(overlayItemStart);
 
                 Toast.makeText(getBaseContext(), getString(R.string.action_barrier_loaded),
                         Toast.LENGTH_SHORT).show();
@@ -651,10 +657,10 @@ public class BrowseMapActivity extends AppCompatActivity
 
                 overlayItem.setMarker(newMarker);
                 mapEditorFragment.placeNewObstacleOverlay.addItem(overlayItem);
+                ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = true;
 
                 mapEditorFragment.map.invalidate();
                 ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = point;
-                ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = true;
                 currentPolyline = null;
 
                 floatingActionButton.show();

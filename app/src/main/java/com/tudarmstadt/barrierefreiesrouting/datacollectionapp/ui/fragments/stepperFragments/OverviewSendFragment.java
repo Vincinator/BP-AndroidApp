@@ -20,6 +20,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.networ
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.PostObstacleToServerTask;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.utils.ObstacleTranslator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.interfaces.IObstacleViewModelConsumer;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.Node;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
 
 import java.util.Map;
@@ -113,11 +114,17 @@ public class OverviewSendFragment extends Fragment implements BlockingStep, IObs
         // wait for the Obstacle instance to be updated, then save 3 Ids into that Obstacle Instance before upload to the server
         ObstacleDataSingleton.getInstance().saveThreeIdAttributes();
 
+
+
+
+
         PostObstacleToServerTask.PostObstacle(ObstacleDataSingleton.getInstance().getObstacle());
 
         // TODO: place this in the success of the server message (?) and update the BrowseMapActivity manually
         ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = true;
+        ObstacleDataSingleton.getInstance().firstNodePlaced = false;
         ObstacleDataSingleton.getInstance().isDoubleNodeObstacle = false;
+
 
         // After inserting
         DownloadBlacklistedRoadsTask.downloadBlacklistedWays();

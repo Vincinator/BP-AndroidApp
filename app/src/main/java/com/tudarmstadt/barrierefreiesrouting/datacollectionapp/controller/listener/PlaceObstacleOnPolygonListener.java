@@ -4,12 +4,16 @@ import android.graphics.Point;
 
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.ObstaclePositionSelectedOnPolylineEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.CustomPolyline;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.Node;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
 
 import org.greenrobot.eventbus.EventBus;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
+
+import static org.apache.commons.lang3.ObjectUtils.max;
+import static org.apache.commons.lang3.ObjectUtils.min;
 
 /**
  * Places an Obstacle on the Polygon that this class listens for Click Events.
@@ -43,6 +47,7 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
             // Subscriber will be notified about this post, but only one specified method will be called
             EventBus.getDefault().post(new ObstaclePositionSelectedOnPolylineEvent(getClosestPointOnPolyLine(mapView, polyline, finalPoint), (CustomPolyline) polyline));
 
+            ObstacleDataSingleton.getInstance().firstNodePlaced = !ObstacleDataSingleton.getInstance().firstNodePlaced;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,8 +70,15 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
         GeoPoint candidate = null;
         Point candidatePoint = null;
 
+        long firstOutterNode_candidate1;
+        long firstOutterNode_candidate2;
+
+        long lastOutterNode_candidate1;
+        long lastOutterNode_candidate2;
+
+        CustomPolyline cuspo = null;
+
         /**
-         * IMPORTANT HINT FOR BI:
          * The nodes are ordered in the polyline.
          * this means, that we can iterate through the polyline and get the nearest line
          * of the polyline to the placed Point.
@@ -99,9 +111,23 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
                         // TODO: From Bi, maybe something incorect, check later
                         // check if polyline is really from type Custom
                         if (polyline instanceof CustomPolyline) {
-                            CustomPolyline cuspo = (CustomPolyline) polyline;
-                            ObstacleDataSingleton.getInstance().setId_firstnode(cuspo.getRoad().getRoadNodes().get(curIndex).id);
-                            ObstacleDataSingleton.getInstance().setId_lastnode(cuspo.getRoad().getRoadNodes().get(curIndex + 1).id);
+                            cuspo = (CustomPolyline) polyline;
+                            ObstacleDataSingleton.getInstance().setUnderlyingRoadOfObstacle = cuspo.getRoad();
+
+                            if(!ObstacleDataSingleton.getInstance().firstNodePlaced){
+
+                                ObstacleDataSingleton.getInstance().setFirstOutterNode_candidate1(cuspo.getRoad().getRoadNodes().get(curIndex).id);
+                                ObstacleDataSingleton.getInstance().setFirstOutterNode_candidate2(cuspo.getRoad().getRoadNodes().get(curIndex + 1).id);
+                                ObstacleDataSingleton.getInstance().setId_firstnode(cuspo.getRoad().getRoadNodes().get(curIndex).id);
+                                ObstacleDataSingleton.getInstance().setId_firstnode(cuspo.getRoad().getRoadNodes().get(curIndex +1 ).id);
+
+
+                            }else{
+
+                                ObstacleDataSingleton.getInstance().setLastOutterNode_candidate1(cuspo.getRoad().getRoadNodes().get(curIndex).id);
+                                ObstacleDataSingleton.getInstance().setLastOutterNode_candidate2(cuspo.getRoad().getRoadNodes().get(curIndex + 1).id);
+
+                            }
                         }
                     }
                 }
@@ -111,8 +137,54 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
             }
         }
 
+        if(ObstacleDataSingleton.getInstance().firstNodePlaced && cuspo != null){
+            long first = 0, last = 0;
+            boolean switchedDirection = false;
+
+            for(Node n : cuspo.getRoad().getRoadNodes()){
+
+                if(n.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate1() ||
+                        n.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate2()){
+                    first = n.id;
+                    switchedDirection = true;
+                    break; // find the FIRST id in the sorted way list
+                }
+
+                if(n.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate1() ||
+                        n.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate2()){
+                    first = n.id;
+                    break; // find the FIRST id in the sorted way list
+                }
+            }
+
+            for(Node n : cuspo.getRoad().getRoadNodes()){
+                if(switchedDirection){
+                    if(n.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate1() ||
+                            n.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate2()){
+                        last = n.id; // find the LAST id in the sorted way list.
+                    }
+                }else{
+                    if(n.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate1() ||
+                            n.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate2()){
+                        last = n.id; // find the LAST id in the sorted way list.
+                    }
+                }
+
+            }
+
+            if(first == 0 || last == 0){
+                System.out.println("error...");
+            }
+
+            ObstacleDataSingleton.getInstance().setId_firstnode(first);
+            ObstacleDataSingleton.getInstance().setId_lastnode(last);
+        }
+
+
         return candidate;
     }
+
+
 
     public double getDistance(Point a, Point b) {
         double temp = Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);

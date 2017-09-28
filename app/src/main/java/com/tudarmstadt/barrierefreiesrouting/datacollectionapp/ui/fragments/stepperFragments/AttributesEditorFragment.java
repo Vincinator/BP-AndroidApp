@@ -17,11 +17,13 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.dynamicObstacleFragmentEditor.ObstacleViewModel;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.SelectedObstacleTypeChangedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.utils.ObstacleTranslator;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.Node;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.osmdroid.util.GeoPoint;
 
 import bp.common.model.obstacles.Construction;
 import bp.common.model.obstacles.Elevator;
@@ -145,6 +147,28 @@ public class AttributesEditorFragment extends Fragment implements Step {
     private Obstacle getdoubleNodeObstacleFrom(int pos) {
 
         Obstacle result = new Stairs();
+
+        // Sort the first node and the second node according to the xml sorting order.
+        for(Node node : ObstacleDataSingleton.getInstance().setUnderlyingRoadOfObstacle.getRoadNodes()){
+            // first obstacle node is surrounded by two existing nodes.
+            // if one of the existing points is earlier in the sorting order than
+            // one of the surrounding two points for the endnode, than the
+            // sorting is correct.
+            if(node.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate1() ||
+                    node.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate2()){
+                break;
+            }
+            // otherwise the sorting is not correct and must be switched.
+            if(node.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate1() ||
+                    node.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate2()){
+                GeoPoint temp = ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle;
+                ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle;
+                ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle = temp;
+                break;
+            }
+
+        }
+
 
         result.setLatitudeEnd(ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle.getLatitude());
         result.setLongitudeEnd(ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle.getLongitude());

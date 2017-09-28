@@ -17,7 +17,7 @@ public class ObstacleDataSingleton {
     public boolean editorIsSyncedWithSelection = false;
     public GeoPoint currentStartingPositionOfSetObstacle = null;
     public GeoPoint currentEndPositionOfSetObstacle = null;
-    public boolean isDoubleNodeObstacle = false;
+    public boolean firstNodePlaced = false;
     public boolean obstacleDataCollectionCompleted = false;
     private Obstacle mObstacle;
     private ObstacleViewModel mObstacleViewModel;
@@ -28,6 +28,12 @@ public class ObstacleDataSingleton {
     private long id_way;
     private long id_firstnode;
     private long id_lastnode;
+    private long firstOutterNode_candidate1;
+    private long firstOutterNode_candidate2;
+    private long lastOutterNode_candidate1;
+    private long lastOutterNode_candidate2;
+    public boolean isDoubleNodeObstacle;
+    public ParcedOverpassRoad setUnderlyingRoadOfObstacle;
 
     /*  ##########################################################
         #Attribute needed for Export Tools
@@ -107,7 +113,40 @@ public class ObstacleDataSingleton {
         this.id_lastnode = id_lastnode;
     }
 
+    public void setFirstOutterNode_candidate1(long firstOutterNode_candidate1) {
+        this.firstOutterNode_candidate1 = firstOutterNode_candidate1;
+    }
+
+    public void setFirstOutterNode_candidate2(long firstOutterNode_candidate2) {
+        this.firstOutterNode_candidate2 = firstOutterNode_candidate2;
+    }
+
+    public void setLastOutterNode_candidate1(long lastOutterNode_candidate1) {
+        this.lastOutterNode_candidate1 = lastOutterNode_candidate1;
+    }
+
+    public void setLastOutterNode_candidate2(long lastOutterNode_candidate2) {
+        this.lastOutterNode_candidate2 = lastOutterNode_candidate2;
+    }
+
+    public long getFirstOutterNode_candidate1() {
+        return firstOutterNode_candidate1;
+    }
+
+    public long getFirstOutterNode_candidate2() {
+        return firstOutterNode_candidate2;
+    }
+
+    public long getLastOutterNode_candidate1() {
+        return lastOutterNode_candidate1;
+    }
+
+    public long getLastOutterNode_candidate2() {
+        return lastOutterNode_candidate2;
+    }
+
     /*  ##########################################################
         #Functions needed for Export Tools
+
         ##########################################################*/
 }
