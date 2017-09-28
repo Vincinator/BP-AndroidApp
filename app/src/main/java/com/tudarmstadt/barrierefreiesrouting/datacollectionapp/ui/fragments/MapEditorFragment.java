@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.listener.SelectObstacleForDetailsViewListener;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.NearestRoadsOverlay;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.MapEditorState;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleOverlayItem;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.activities.BrowseMapActivity;
@@ -40,6 +41,7 @@ public class MapEditorFragment extends Fragment implements MapEventsReceiver {
     public ItemizedOverlayWithFocus<ObstacleOverlayItem> obstacleOverlay;
     public ItemizedOverlayWithFocus<OverlayItem> placeNewObstacleOverlay;
     public ItemizedOverlayWithFocus<OverlayItem> placeRoadEditMarkerOverlay;
+    public NearestRoadsOverlay roadsOverlay;
 
 
 

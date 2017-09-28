@@ -31,6 +31,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.events
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.ObstacleOverlayItemSingleTapEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.ObstaclePositionSelectedOnPolylineEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.NewRoadMarkerPlacedEvent;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.OverpassRoadDownloadEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoadsHelperOverlayChangedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerObstaclePostedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.RoutingServerObstaclesDownloadedEvent;
@@ -44,6 +45,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.mapope
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.mapoperator.RoadEditorOperator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadBlacklistedRoadsTask;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.DownloadObstaclesTask;
+import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.overlayBuilder.OsmParser;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.interfaces.IObstacleProvider;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.CustomPolyline;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
@@ -65,9 +67,17 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import bp.common.model.WayBlacklist;
 import bp.common.model.obstacles.Construction;
@@ -180,7 +190,6 @@ public class BrowseMapActivity extends AppCompatActivity
                 ObstacleDataSingleton.getInstance().obstacleDataCollectionCompleted = false;
                 mapEditorFragment.getStateHandler().setActiveOperator(new PlaceNearestRoadsOnMapOperator());
                 mapEditorFragment.map.invalidate();
-
 
 
             }
@@ -304,6 +313,7 @@ public class BrowseMapActivity extends AppCompatActivity
 
     /**
      * Delete all Blacklisted Roads and store them in the blackli
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.POSTING)
@@ -319,12 +329,76 @@ public class BrowseMapActivity extends AppCompatActivity
             if (!response.isSuccessful())
                 return;
 
-            RoadDataSingleton.getInstance().setBlacklistedRoads(mapper.<ArrayList<WayBlacklist>>readValue(res, new TypeReference<List<Way>>() { }));
+            RoadDataSingleton.getInstance().setBlacklistedRoads(mapper.<ArrayList<WayBlacklist>>readValue(res, new TypeReference<List<Way>>() {
+            }));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onMessageEvent(OverpassRoadDownloadEvent event) {
+    Response response = event.getResult();
+      if(response !=null&&response.isSuccessful())
+
+    {
+
+        try {
+            ArrayList<Polyline> polylines = new ArrayList<>();
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            OsmParser parser = new OsmParser();
+            String ss = response.body().string();
+            InputSource source = new InputSource(new StringReader(ss));
+
+            saxParser.parse(source, parser);
+            List<ParcedOverpassRoad> give = mapEditorFragment.roadsOverlay.nearestRoads;
+
+            mapEditorFragment.roadsOverlay.nearestRoads = parser.getRoads();
+            for (ParcedOverpassRoad r : give) {
+                mapEditorFragment.roadsOverlay.nearestRoads.add(r);
+            }
+
+            mapEditorFragment.roadsOverlay.nearestRoads = parser.getRoads();
+
+            if (mapEditorFragment.roadsOverlay.nearestRoads.isEmpty() || mapEditorFragment.roadsOverlay.nearestRoads.getFirst().getRoadPoints().isEmpty())
+                return;
+
+            for (ParcedOverpassRoad r : mapEditorFragment.roadsOverlay.nearestRoads) {
+                if (isBlacklisted(r.id))
+                    continue;
+                CustomPolyline polyline = new CustomPolyline();
+                polyline.setRoad(r);
+                polyline.setPoints(r.getRoadPoints());
+                polyline.setColor(Color.BLACK);
+                polyline.setWidth(18);
+                // See onClick() method in this class.
+                if(roadEditMode){
+                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
+
+                }else{
+                    polyline.setOnClickListener(new PlaceObstacleOnPolygonListener());
+
+                }                polylines.add(polyline);
+            }
+
+            EventBus.getDefault().post(new RoadsHelperOverlayChangedEvent(polylines));
+
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+
+
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(RoutingServerRoadDownloadEvent event) {
@@ -375,8 +449,7 @@ public class BrowseMapActivity extends AppCompatActivity
 
                         }
                         streetLine.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, mapEditorFragment.map));
-                        mapEditorFragment.map.getOverlays().add(streetLine);
-
+                        currentPolylineArrayList.add(streetLine);
                     }
 
 
@@ -406,6 +479,23 @@ public class BrowseMapActivity extends AppCompatActivity
         }
         return false;
     }
+
+
+    /**
+     * Very inefficient solution. This can be improved by either
+     *  - not using overpass api and getting all roads from the server, and filter the blacklisted roads on the server
+     *  - optimized data structure
+     * @return
+     */
+    private boolean isBlacklisted(long wayID) {
+
+        for(WayBlacklist wayblacklist : RoadDataSingleton.getInstance().getBlacklistedRoads()){
+            if(wayID == wayblacklist.getOsm_id())
+                return true;
+        }
+        return false;
+    }
+
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(RoutingServerObstaclesDownloadedEvent event) {
@@ -485,9 +575,6 @@ public class BrowseMapActivity extends AppCompatActivity
 
 
 
-
-
-
         @Subscribe(threadMode = ThreadMode.POSTING)
     public void onMessageEvent(ObstaclePositionSelectedOnPolylineEvent event) {
 
@@ -538,15 +625,10 @@ public class BrowseMapActivity extends AppCompatActivity
 
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(RoadsHelperOverlayChangedEvent event) {
-        mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
 
-        for (Polyline p : currentPolylineArrayList) {
-            mapEditorFragment.map.getOverlays().remove(p);
-        }
-
-        currentPolylineArrayList = event.getRoads();
+        currentPolylineArrayList.addAll(event.getRoads());
 
         for (Polyline p : currentPolylineArrayList) {
             mapEditorFragment.map.getOverlays().add(p);
