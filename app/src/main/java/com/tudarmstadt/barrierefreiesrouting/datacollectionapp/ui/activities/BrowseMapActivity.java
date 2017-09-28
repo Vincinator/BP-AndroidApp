@@ -540,26 +540,38 @@ public class BrowseMapActivity extends AppCompatActivity
                             ObstacleOverlayItem stairsStartOverlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()), obstacle);
                             ObstacleOverlayItem stairsEndOverlayItem = new ObstacleOverlayItem(obstacle.getName(), getString(R.string.default_description), new GeoPoint(obstacle.getLatitudeEnd(), obstacle.getLongitudeEnd()), obstacle);
 
-                            ArrayList<GeoPoint> points= new ArrayList<>();
-                            points.add(new GeoPoint(obstacle.getLatitudeStart(), obstacle.getLongitudeStart()));
 
-                            points.add(new GeoPoint(obstacle.getLatitudeEnd(), obstacle.getLongitudeEnd()));
+                            for(int i = 0; i + 1 < obstacle.getNodes().size(); i++){
 
-                            Polyline polyline = new Polyline();
-                            polyline.setPoints(points);
-                            polyline.setColor(Color.GRAY);
-                            polyline.setWidth(12);
+                                Node startNode = obstacle.getNodes().get(i);
+                                Node endNode = obstacle.getNodes().get(i+1);
 
-                            // See onClick() method in this class.
-                            if(roadEditMode){
-                                polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
-                            }else{
-                                polyline.setOnClickListener(null);
+
+                                GeoPoint start = new GeoPoint(startNode.getLatitude(), startNode.getLongitude());
+                                GeoPoint end = new GeoPoint(endNode.getLatitude(), endNode.getLongitude());
+
+                                ArrayList<GeoPoint> polylinePoints = new ArrayList<>();
+
+                                polylinePoints.add(start);
+                                polylinePoints.add(end);
+                                Polyline polyline = new Polyline();
+                                polyline.setPoints(polylinePoints);
+                                polyline.setColor(Color.GRAY);
+                                polyline.setWidth(12);
+                                // See onClick() method in this class.
+                                if(roadEditMode){
+                                    polyline.setOnClickListener(new PlaceStartOfRoadOnPolyline(mapEditorFragment));
+                                }else{
+                                    polyline.setOnClickListener(null);
+                                }
+                                currentStairsPolylines.add(polyline);
+
                             }
-                            currentStairsPolylines.add(polyline);
+
                             for (Polyline p : currentStairsPolylines) {
                                 mapEditorFragment.map.getOverlays().add(p);
                             }
+
                             stairsStartOverlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
                             stairsEndOverlayItem.setMarker(getResources().getDrawable(R.mipmap.ramppic));
                             mapEditorFragment.obstacleOverlay.addItem(stairsStartOverlayItem);
