@@ -15,6 +15,7 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.RoadDataSin
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.activities.BrowseMapActivity;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.ui.activities.PlaceObstacleActivity;
 
+import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
@@ -46,8 +47,9 @@ public class ActionButtonClickListener implements View.OnClickListener {
         } else{
             BrowseMapActivity browseMapActivity = (BrowseMapActivity) view.getContext();
             nodeList.clear();
-            List<GeoPoint> geop = new ArrayList<GeoPoint>();
-            List<Overlay> xx = browseMapActivity.mapEditorFragment.map.getOverlays();
+            List<GeoPoint> geop = new ArrayList<>();
+            List<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
+
             for (int i = xx.size() - 1; i > 0; i--) {
                 if (Polyline.class.isInstance(xx.get(i)) || Marker.class.isInstance(xx.get(i))) {
                     if (Marker.class.isInstance(xx.get(i))) {
