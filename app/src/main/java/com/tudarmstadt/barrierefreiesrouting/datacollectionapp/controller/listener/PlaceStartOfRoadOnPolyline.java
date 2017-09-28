@@ -155,7 +155,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
             newStreet.setRoadList(roadEndPoints);
             RoadList.add(newStreet);
 
-            List<GeoPoint> gp = new ArrayList<GeoPoint>();
+            List<GeoPoint> gp = new ArrayList<>();
             List<Overlay> xx = RoadDataSingleton.getInstance().currentOverlayItems;
 
             // Workaround: when initial polyline and marker for road editor is not set yet
@@ -201,6 +201,7 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
 
 
                 addMapOverlay(end, streetLine, mapView);
+                EventBus.getDefault().post(new NewRoadMarkerPlacedEvent());
 
 
             }
