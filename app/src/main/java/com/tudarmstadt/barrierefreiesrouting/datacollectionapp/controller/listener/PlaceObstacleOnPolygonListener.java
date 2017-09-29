@@ -41,7 +41,10 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
             }
             // Send Event that an Obstacle Position has been set, and send the position on the line with the event.
             // Subscriber will be notified about this post, but only one specified method will be called
-            EventBus.getDefault().post(new ObstaclePositionSelectedOnPolylineEvent(getClosestPointOnPolyLine(mapView, polyline, finalPoint), (CustomPolyline) polyline));
+            GeoPoint geopointOnPolyLine = getClosestPointOnPolyLine(mapView, polyline, finalPoint);
+            if(geopointOnPolyLine == null)
+                return false;
+            EventBus.getDefault().post(new ObstaclePositionSelectedOnPolylineEvent(geopointOnPolyLine, (CustomPolyline) polyline));
 
             ObstacleDataSingleton.getInstance().firstNodePlaced = !ObstacleDataSingleton.getInstance().firstNodePlaced;
         } catch (Exception e) {
@@ -170,6 +173,7 @@ public class PlaceObstacleOnPolygonListener implements Polyline.OnClickListener 
 
             if(first == 0 || last == 0){
                 System.out.println("error...");
+                return null;
             }
 
             ObstacleDataSingleton.getInstance().setId_firstnode(first);
