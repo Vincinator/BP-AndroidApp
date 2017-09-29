@@ -260,8 +260,8 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                         // check if polyline is really from type Custom
                         if (polyline instanceof CustomPolyline) {
                             CustomPolyline cuspo = (CustomPolyline) polyline;
-                            RoadDataSingleton.getInstance().setId_firstnode(cuspo.getRoad().getRoadNodes().get(curIndex).id);
-                            RoadDataSingleton.getInstance().setId_lastnode(cuspo.getRoad().getRoadNodes().get(curIndex + 1).id);
+                            RoadDataSingleton.getInstance().setId_firstnode(cuspo.getRoad().getRoadNodes().get(curIndex).getOsm_id());
+                            RoadDataSingleton.getInstance().setId_lastnode(cuspo.getRoad().getRoadNodes().get(curIndex + 1).getOsm_id());
                         }
                     }
                 }
@@ -318,8 +318,8 @@ public class PlaceStartOfRoadOnPolyline implements Polyline.OnClickListener, IUs
                         // check if polyline is really from type Custom
                         if (polyline instanceof CustomPolyline) {
                             CustomPolyline cuspo = (CustomPolyline) polyline;
-                            RoadDataSingleton.getInstance().setId_LASTfirstnode(cuspo.getRoad().getRoadNodes().get(curIndex).id);
-                            RoadDataSingleton.getInstance().setId_LASTlastnode(cuspo.getRoad().getRoadNodes().get(curIndex + 1).id);
+                            RoadDataSingleton.getInstance().setId_LASTfirstnode(cuspo.getRoad().getRoadNodes().get(curIndex).getOsm_id());
+                            RoadDataSingleton.getInstance().setId_LASTlastnode(cuspo.getRoad().getRoadNodes().get(curIndex + 1).getOsm_id());
                         }
                     }
                 }

@@ -23,10 +23,15 @@ public class ParcedOverpassRoad implements Parcelable {
     public String name = "has no name";
     public ArrayList<Polyline> polylines = new ArrayList<>();
     private ArrayList<GeoPoint> roadPoints = new ArrayList<GeoPoint>();
+
+    public void setRoadNodes(List<bp.common.model.ways.Node> roadNodes) {
+        this.roadNodes = roadNodes;
+    }
+
     /**
      * list of node instead of GeoPoint
      */
-    private ArrayList<Node> roadNodes = new ArrayList<Node>();
+    private List<bp.common.model.ways.Node> roadNodes = new ArrayList<>();
 
     public ParcedOverpassRoad(){
 
@@ -49,7 +54,7 @@ public class ParcedOverpassRoad implements Parcelable {
         }
     };
 
-    public ArrayList<Node> getRoadNodes() {
+    public List<bp.common.model.ways.Node> getRoadNodes() {
         return roadNodes;
     }
 
@@ -79,4 +84,6 @@ public class ParcedOverpassRoad implements Parcelable {
         dest.writeString(name);
         dest.writeTypedList(roadPoints);
     }
+
+
 }

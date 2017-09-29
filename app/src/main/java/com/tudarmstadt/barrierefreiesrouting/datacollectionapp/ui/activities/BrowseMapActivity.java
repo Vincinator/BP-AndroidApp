@@ -379,8 +379,7 @@ public class BrowseMapActivity extends AppCompatActivity
 
             mapEditorFragment.roadsOverlay.nearestRoads = parser.getRoads();
 
-            if (mapEditorFragment.roadsOverlay.nearestRoads.isEmpty() || mapEditorFragment.roadsOverlay.nearestRoads.getFirst().getRoadPoints().isEmpty())
-                return;
+
 
             for (ParcedOverpassRoad r : mapEditorFragment.roadsOverlay.nearestRoads) {
                 if (isBlacklisted(r.id))
@@ -438,15 +437,20 @@ public class BrowseMapActivity extends AppCompatActivity
                     for (Way way : wayList) {
 
                         List<GeoPoint> gp = new ArrayList<GeoPoint>();
+                        ParcedOverpassRoad road = new ParcedOverpassRoad();
                         for (Node node : way.getNodes()) {
                             GeoPoint g = new GeoPoint(node.getLatitude(), node.getLongitude());
                             gp.add(g);
+
                         }
 
                         CustomPolyline streetLine = new CustomPolyline();
-                        ParcedOverpassRoad r = new ParcedOverpassRoad();
-                        r.id = way.id;
-                        streetLine.setRoad(r);
+
+                        road.id = way.id;
+                        road.setRoadNodes(way.getNodes());
+                        road.setRoadList(gp);
+
+                        streetLine.setRoad(road);
 
                         streetLine.setTitle("Text param");
                         streetLine.setWidth(10f);

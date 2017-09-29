@@ -17,7 +17,6 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.R;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.dynamicObstacleFragmentEditor.ObstacleViewModel;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.eventsystem.SelectedObstacleTypeChangedEvent;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.utils.ObstacleTranslator;
-import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.Node;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
 
 import org.greenrobot.eventbus.EventBus;
@@ -149,18 +148,18 @@ public class AttributesEditorFragment extends Fragment implements Step {
         Obstacle result = new Stairs();
 
         // Sort the first node and the second node according to the xml sorting order.
-        for(Node node : ObstacleDataSingleton.getInstance().setUnderlyingRoadOfObstacle.getRoadNodes()){
+        for(bp.common.model.ways.Node node : ObstacleDataSingleton.getInstance().setUnderlyingRoadOfObstacle.getRoadNodes()){
             // first obstacle node is surrounded by two existing nodes.
             // if one of the existing points is earlier in the sorting order than
             // one of the surrounding two points for the endnode, than the
             // sorting is correct.
-            if(node.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate1() ||
-                    node.id == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate2()){
+            if(node.getOsm_id() == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate1() ||
+                    node.getOsm_id() == ObstacleDataSingleton.getInstance().getFirstOutterNode_candidate2()){
                 break;
             }
             // otherwise the sorting is not correct and must be switched.
-            if(node.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate1() ||
-                    node.id == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate2()){
+            if(node.getOsm_id() == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate1() ||
+                    node.getOsm_id() == ObstacleDataSingleton.getInstance().getLastOutterNode_candidate2()){
                 GeoPoint temp = ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle;
                 ObstacleDataSingleton.getInstance().currentEndPositionOfSetObstacle = ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle;
                 ObstacleDataSingleton.getInstance().currentStartingPositionOfSetObstacle = temp;

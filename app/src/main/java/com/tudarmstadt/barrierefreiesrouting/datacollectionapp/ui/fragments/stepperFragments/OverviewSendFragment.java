@@ -20,7 +20,6 @@ import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.networ
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.network.PostObstacleToServerTask;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.controller.utils.ObstacleTranslator;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.interfaces.IObstacleViewModelConsumer;
-import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.Node;
 import com.tudarmstadt.barrierefreiesrouting.datacollectionapp.model.ObstacleDataSingleton;
 
 import java.util.Map;
