@@ -73,25 +73,32 @@ public class PlaceNearestRoadsOnMapOperator implements IUserInteractionWithMap {
     @Override
     public boolean longPressHelper(GeoPoint p, Activity context, MapEditorFragment mapEditorFragment) {
 
-
-        DefaultNearestRoadsDirector roadsDirector = new DefaultNearestRoadsDirector(new NearestRoadsOverlayBuilder());
-        mapEditorFragment.roadsOverlay = roadsDirector.construct(p);
-
-        // clear the new placed temp Marker Item
-        mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
-
-        DownloadOverPassRoadsTask dt = new DownloadOverPassRoadsTask(context);
-        dt.execute(mapEditorFragment.roadsOverlay.center, mapEditorFragment.roadsOverlay.radius);
-
-        //Downloads all custom roads.
-        DownloadRoadTask.downloadroad();
+        try {
 
 
-        displayHints = new DisplayHints(mapEditorFragment.map.getContext());
-        displayHints.simpleHint("Barriere Hinzufügen", "Um eine TREPPE hinzuzufügen müssen Sie 2 Marker setzen, durch klicken auf die (rot oder schwarz) Straßen. Der ERSTE Marker ist der Anfang und der ZWEITE das Ende der Treppe. Anschließend auf den '+' Button klciken.");
+            DefaultNearestRoadsDirector roadsDirector = new DefaultNearestRoadsDirector(new NearestRoadsOverlayBuilder());
+            mapEditorFragment.roadsOverlay = roadsDirector.construct(p);
+
+            // clear the new placed temp Marker Item
+            mapEditorFragment.placeNewObstacleOverlay.removeAllItems();
+
+            DownloadOverPassRoadsTask dt = new DownloadOverPassRoadsTask(context);
+            dt.execute(mapEditorFragment.roadsOverlay.center, mapEditorFragment.roadsOverlay.radius);
+
+            //Downloads all custom roads.
+            DownloadRoadTask.downloadroad();
 
 
-        return true;
+            displayHints = new DisplayHints(mapEditorFragment.map.getContext());
+            displayHints.simpleHint("Barriere Hinzufügen", "Um eine TREPPE hinzuzufügen müssen Sie 2 Marker setzen, durch klicken auf die (rot oder schwarz) Straßen. Der ERSTE Marker ist der Anfang und der ZWEITE das Ende der Treppe. Anschließend auf den '+' Button klciken.");
+            return true;
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     @Override

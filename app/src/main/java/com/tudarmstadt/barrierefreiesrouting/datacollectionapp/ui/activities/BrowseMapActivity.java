@@ -572,6 +572,12 @@ public class BrowseMapActivity extends AppCompatActivity
                             }
 
                             for (Polyline p : currentStairsPolylines) {
+                                if(mapEditorFragment == null || mapEditorFragment.map == null){
+
+                                    currentStairsPolylines.clear();
+                                    return;
+
+                                }
                                 mapEditorFragment.map.getOverlays().add(p);
                             }
 
